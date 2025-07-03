@@ -94,4 +94,4 @@ The Python API provides several geospatial operations:
 
 ## License
 
-This project is licensed under the MIT License."# asset" 
+This project is licensed under the MIT License.

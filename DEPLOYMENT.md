@@ -29,7 +29,7 @@ git push -u origin main
 4. Configure the service:
    - **Name**: `asset-survey-app` (or your preferred name)
    - **Environment**: `Node`
-   - **Build Command**: `npm ci && npm run build`
+   - **Build Command**: `npm install && npm run build`
    - **Start Command**: `npm run preview`
    - **Plan**: Free (or select a paid plan for production use)
 
