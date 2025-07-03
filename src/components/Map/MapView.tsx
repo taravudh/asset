@@ -445,7 +445,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
   return (
     <div className="relative h-full w-full">
       <MapContainer
-        center={DEFAULT_CENTER}
+        center={DEFAULT_CENTER as any}
         zoom={DEFAULT_ZOOM}
         style={{ height: '100%', width: '100%' }}
         zoomControl={false}
