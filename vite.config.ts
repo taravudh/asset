@@ -13,7 +13,6 @@ export default defineConfig({
       output: {
         manualChunks: {
           vendor: ['react', 'react-dom'],
-          map: ['leaflet', 'react-leaflet']
         }
       }
     }
@@ -24,9 +23,5 @@ export default defineConfig({
     hmr: {
       overlay: false
     }
-  },
-  preview: {
-    port: parseInt(process.env.PORT || '4173'),
-    host: '0.0.0.0'
   }
 });

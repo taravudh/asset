@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview --host 0.0.0.0 --port $PORT"
   },
@@ -27,8 +27,7 @@
     "react-leaflet": "^4.2.1",
     "react-leaflet-draw": "^0.20.4",
     "@react-leaflet/core": "^2.1.0",
-    "leaflet-draw": "^1.0.4",
-    "terser": "^5.36.0"
+    "leaflet-draw": "^1.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
@@ -43,9 +42,7 @@
     "eslint-plugin-react-refresh": "^0.4.11",
     "globals": "^15.9.0",
     "typescript": "^5.5.3",
-    "typescript-eslint": "^8.3.0"
-  },
-  "engines": {
-    "node": ">=18.0.0"
+    "typescript-eslint": "^8.3.0",
+    "terser": "^5.43.1"
   }
 }
