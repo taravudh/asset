@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: asset-survey-app
+    env: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm run preview
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+    domains:
+      - asset-survey.onrender.com
