@@ -2,7 +2,7 @@ import React from 'react';
 import { DivideIcon as LucideIcon } from 'lucide-react';
 
 interface ToolbarButtonProps {
-  icon: typeof LucideIcon;
+  icon: React.ComponentType<any>;
   onClick: () => void;
   active?: boolean;
   disabled?: boolean;
