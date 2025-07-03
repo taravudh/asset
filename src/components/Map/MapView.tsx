@@ -59,7 +59,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
   } | null>(null);
   const [showLayerManager, setShowLayerManager] = useState(false);
   const [drawingMode, setDrawingMode] = useState<'none' | 'marker' | 'polyline' | 'polygon'>('none');
-
+  
   const mapRef = useRef<L.Map | null>(null);
   const featureGroupRef = useRef<L.FeatureGroup | null>(null);
 
@@ -70,7 +70,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         // Get layers from database
         const projectLayers = await getLayersByProject(projectId);
         setLayers(projectLayers);
-
+        
         // Set first layer as active if available
         if (projectLayers.length > 0 && !activeLayerId) {
           setActiveLayerId(projectLayers[0].id);
@@ -79,7 +79,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         console.error('Error loading layers:', error);
       }
     };
-
+    
     loadLayers();
   }, [projectId, activeLayerId]);
 
@@ -97,7 +97,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
     try {
       // Generate a random color for the layer
       const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-
+      
       // Create a new layer in the database
       const newLayer = await createLayer({
         name: fileName,
@@ -116,13 +116,13 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         visible: true,
         customFields: []
       });
-
+      
       // Add to local state
       setLayers(prev => [...prev, newLayer]);
-
+      
       // Set as active layer
       setActiveLayerId(newLayer.id);
-
+      
       setShowUploader(false);
     } catch (error) {
       console.error('Error creating layer:', error);
@@ -140,7 +140,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
           console.error(`Error deleting layer ${layer.id}:`, error);
         }
       });
-
+      
       setLayers([]);
       setActiveLayerId('');
       setActiveLayer(null);
@@ -152,10 +152,10 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
       alert('No layers to export');
       return;
     }
-
+    
     // Combine all layers into a single FeatureCollection
     const features: any[] = [];
-
+    
     layers.forEach(layer => {
       if (layer.geojsonData && layer.geojsonData.type === 'FeatureCollection') {
         features.push(...layer.geojsonData.features);
@@ -163,34 +163,34 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         features.push(layer.geojsonData);
       }
     });
-
+    
     const featureCollection = {
       type: 'FeatureCollection',
       features
     };
-
+    
     // Create a download link
     const dataStr = JSON.stringify(featureCollection, null, 2);
     const dataUri = `data:application/json;charset=utf-8,${encodeURIComponent(dataStr)}`;
-
+    
     const exportFileDefaultName = `export-${projectId}-${new Date().toISOString().slice(0, 10)}.geojson`;
-
+    
     const linkElement = document.createElement('a');
     linkElement.setAttribute('href', dataUri);
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
   };
-
+  
   const handleLayersChange = (updatedLayers: Layer[]) => {
     setLayers(updatedLayers);
   };
-
+  
   // Create a default layer if none exists
   const createDefaultLayer = async (layerType: 'marker' | 'polyline' | 'polygon'): Promise<string> => {
     try {
       // Generate a random color
       const randomColor = `#${Math.floor(Math.random()*16777215).toString(16)}`;
-
+      
       // Create a new layer
       const newLayer = await createLayer({
         name: `${layerType.charAt(0).toUpperCase() + layerType.slice(1)} Layer`,
@@ -212,26 +212,26 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         visible: true,
         customFields: []
       });
-
+      
       // Add to local state
       setLayers(prev => [...prev, newLayer]);
-
+      
       // Set as active layer
       setActiveLayerId(newLayer.id);
-
+      
       return newLayer.id;
     } catch (error) {
       console.error('Error creating default layer:', error);
       throw error;
     }
   };
-
+  
   const handleSaveAsset = async (assetData: Partial<Asset>) => {
     if (!newAssetGeometry || !activeLayerId) {
       alert('No active layer selected. Please create or select a layer first.');
       return;
     }
-
+    
     try {
       // Determine asset type based on geometry
       let assetType: 'marker' | 'polyline' | 'polygon';
@@ -248,10 +248,10 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         default:
           assetType = 'marker'; // Default fallback
       }
-
+      
       // Apply the active layer's style to the asset
       const style = activeLayer?.style ? { ...activeLayer.style } : undefined;
-
+      
       // Create the asset in the database
       const newAsset = await createAsset({
         id: assetData.id, // CRITICAL: Use the provided ID to ensure consistency
@@ -266,14 +266,14 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         style,
         photos: assetData.photos || []
       });
-
+      
       // Update the layer's GeoJSON data to include this new asset
       if (activeLayer) {
         // Ensure geojsonData is initialized properly
-        const currentFeatures = activeLayer.geojsonData && activeLayer.geojsonData.features
-          ? activeLayer.geojsonData.features
+        const currentFeatures = activeLayer.geojsonData && activeLayer.geojsonData.features 
+          ? activeLayer.geojsonData.features 
           : [];
-
+        
         const updatedFeatures = [
           ...currentFeatures,
           {
@@ -287,26 +287,26 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
             geometry: newAssetGeometry
           }
         ];
-
+        
         const updatedGeoJSON = {
           type: 'FeatureCollection',
           features: updatedFeatures
         };
-
+        
         // Update the layer in the database
-        await updateLayer(activeLayerId, {
+        await updateLayer(activeLayerId, { 
           geojsonData: updatedGeoJSON,
           updatedAt: new Date().toISOString()
         });
-
+        
         // Update local state
-        setLayers(prev => prev.map(layer =>
-          layer.id === activeLayerId
-            ? { ...layer, geojsonData: updatedGeoJSON }
+        setLayers(prev => prev.map(layer => 
+          layer.id === activeLayerId 
+            ? { ...layer, geojsonData: updatedGeoJSON } 
             : layer
         ));
       }
-
+      
       // Reset state
       setShowAssetForm(false);
       setNewAssetGeometry(null);
@@ -316,13 +316,13 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
       alert('Failed to save asset. Please try again.');
     }
   };
-
+  
   const handleUpdateAsset = async (assetId: string, updates: Partial<Asset>) => {
     // Implement asset update logic
     console.log('Update asset:', assetId, updates);
     setSelectedAsset(null);
   };
-
+  
   const handleDeleteAsset = async (assetId: string) => {
     // Implement asset delete logic
     console.log('Delete asset:', assetId);
@@ -334,12 +334,12 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
       setDrawingMode('none');
     } else {
       setDrawingMode(mode);
-
+      
       // If no active layer, create one
       if (!activeLayerId) {
         createDefaultLayer(mode);
       }
-
+      
       // Clear any existing drawn items
       if (featureGroupRef.current) {
         featureGroupRef.current.clearLayers();
@@ -350,12 +350,12 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
   // Handle created shapes from the draw control
   const handleCreated = (e: any) => {
     const { layerType, layer } = e;
-
+    
     // Check if we have an active layer
     if (!activeLayerId) {
       // Create a default layer based on the type of geometry drawn
       let layerTypeForDefault: 'marker' | 'polyline' | 'polygon';
-
+      
       switch (layerType) {
         case 'marker':
           layerTypeForDefault = 'marker';
@@ -370,19 +370,19 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         default:
           layerTypeForDefault = 'marker';
       }
-
+      
       createDefaultLayer(layerTypeForDefault).then(() => {
         processDrawnLayer(layerType, layer);
       });
       return;
     }
-
+    
     processDrawnLayer(layerType, layer);
   };
-
+  
   const processDrawnLayer = (layerType: string, layer: L.Layer) => {
     let geometry: any = null;
-
+    
     // Convert the drawn layer to GeoJSON geometry
     if (layerType === 'marker') {
       const marker = layer as L.Marker;
@@ -409,33 +409,33 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
       const circle = layer as L.Circle;
       const center = circle.getLatLng();
       const radius = circle.getRadius();
-
+      
       // For circles, we'll create a polygon approximation
       const points = 32; // Number of points to approximate the circle
       const coordinates = [];
-
+      
       for (let i = 0; i < points; i++) {
         const angle = (i / points) * Math.PI * 2;
         const lat = center.lat + (radius / 111319) * Math.sin(angle);
         const lng = center.lng + (radius / (111319 * Math.cos(center.lat * Math.PI / 180))) * Math.cos(angle);
         coordinates.push([lng, lat]);
       }
-
+      
       // Close the polygon
       coordinates.push(coordinates[0]);
-
+      
       geometry = {
         type: 'Polygon',
         coordinates: [coordinates]
       };
     }
-
+    
     if (geometry) {
       // Clear the drawn layer from the map
       if (featureGroupRef.current) {
         featureGroupRef.current.clearLayers();
       }
-
+      
       // Set the geometry for the asset form
       setNewAssetGeometry(geometry);
       setShowAssetForm(true);
@@ -476,9 +476,9 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
             attribution='&copy; <a href="https://carto.com/attributions">CARTO</a>'
           />
         )}
-
+        
         <ZoomControl position="bottomright" />
-
+        
         {/* Drawing tools */}
         <FeatureGroup ref={(ref) => { featureGroupRef.current = ref as L.FeatureGroup | null; }}>
           <EditControl
@@ -498,7 +498,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
             }}
           />
         </FeatureGroup>
-
+        
         {/* Render layers */}
         {layers.filter(layer => layer.visible).map(layer => (
           <GeoJSONLayer
@@ -512,7 +512,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
           />
         ))}
       </MapContainer>
-
+      
       {/* Drawing toolbar */}
       <div className="absolute top-4 left-4 z-[1000] bg-white rounded-lg shadow-md p-2 flex flex-col space-y-2">
         <ToolbarButton
@@ -566,7 +566,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
           title="Clear Layers"
         />
       </div>
-
+      
       {/* GeoJSON Uploader */}
       {showUploader && (
         <div className="absolute top-4 left-16 z-[1000] bg-white rounded-lg shadow-lg p-4 w-80">
@@ -579,13 +579,13 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
               <X className="w-5 h-5" />
             </button>
           </div>
-          <GeoJSONUploader
+          <GeoJSONUploader 
             onUpload={handleGeoJSONUpload}
             multiple={true}
           />
         </div>
       )}
-
+      
       {/* Basemap Selector */}
       {showBasemapSelector && (
         <BasemapSelector
@@ -594,12 +594,12 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
           onClose={() => setShowBasemapSelector(false)}
         />
       )}
-
+      
       {/* Measurement Tool */}
       {showMeasurementTool && (
         <MeasurementTool />
       )}
-
+      
       {/* Layer Manager Button */}
       <div className="absolute bottom-4 left-4 z-[1000]">
         <button
@@ -610,7 +610,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
           <Layers className="w-6 h-6" />
         </button>
       </div>
-
+      
       {/* Layer Manager Modal */}
       {showLayerManager && (
         <LayerManager
@@ -623,7 +623,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
           activeLayerId={activeLayerId}
         />
       )}
-
+      
       {/* Asset Form Modal */}
       {showAssetForm && newAssetGeometry && activeLayerId && (
         <AssetFormModal
@@ -638,7 +638,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
           activeLayer={activeLayer}
         />
       )}
-
+      
       {/* Attribute Viewer */}
       {attributeViewer && (
         <AttributeViewer
@@ -651,7 +651,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
           }}
         />
       )}
-
+      
       {/* Asset Panel */}
       {selectedAsset && (
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[2000]">

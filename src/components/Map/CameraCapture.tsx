@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Camera, X, Download, Check, RefreshCw } from 'lucide-react';
 
 interface CameraCaptureProps {
-  onCapture: (photoData: string, filename: string) => void;
+  onCapture: (photoData: string, filename?: string) => void;
   onClose: () => void;
   assetId?: string;
 }

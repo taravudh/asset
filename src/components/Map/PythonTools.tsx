@@ -13,18 +13,18 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
   const [activeTab, setActiveTab] = useState<'buffer' | 'simplify' | 'voronoi' | 'analyze'>('buffer');
   const [apiStatus, setApiStatus] = useState<'checking' | 'online' | 'offline'>('checking');
   const [isProcessing, setIsProcessing] = useState(false);
-
+  
   // Buffer tool state
   const [bufferDistance, setBufferDistance] = useState(100);
-
+  
   // Simplify tool state
   const [simplifyTolerance, setSimplifyTolerance] = useState(0.0001);
-
+  
   // Voronoi tool state
   const [voronoiPoints, setVoronoiPoints] = useState<[number, number][]>([]);
   const [newPointLat, setNewPointLat] = useState('');
   const [newPointLng, setNewPointLng] = useState('');
-
+  
   // Analyze tool state
   const [analyzeFile, setAnalyzeFile] = useState<File | null>(null);
   const [analysisResults, setAnalysisResults] = useState<any>(null);
@@ -40,7 +40,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
         setApiStatus('offline');
       }
     };
-
+    
     checkApiStatus();
   }, []);
 
@@ -49,11 +49,11 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
       alert('No geometry selected. Please select or draw a geometry first.');
       return;
     }
-
+    
     try {
       setIsProcessing(true);
       const result = await pythonApi.bufferGeometry(activeGeometry, bufferDistance);
-
+      
       if (result.status === 'success') {
         // Add the buffer as a new layer
         onAddLayer(result.buffer, `Buffer (${bufferDistance}m)`);
@@ -74,11 +74,11 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
       alert('No geometry selected. Please select or draw a geometry first.');
       return;
     }
-
+    
     try {
       setIsProcessing(true);
       const result = await pythonApi.simplifyGeometry(activeGeometry, simplifyTolerance);
-
+      
       if (result.status === 'success') {
         // Add the simplified geometry as a new layer
         onAddLayer(result.simplified, `Simplified (${simplifyTolerance})`);
@@ -96,15 +96,15 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
 
   const handleAddVoronoiPoint = () => {
     if (!newPointLat || !newPointLng) return;
-
+    
     const lat = parseFloat(newPointLat);
     const lng = parseFloat(newPointLng);
-
+    
     if (isNaN(lat) || isNaN(lng)) {
       alert('Invalid coordinates');
       return;
     }
-
+    
     setVoronoiPoints([...voronoiPoints, [lng, lat]]);
     setNewPointLat('');
     setNewPointLng('');
@@ -115,11 +115,11 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
       alert('At least 3 points are required for Voronoi diagram');
       return;
     }
-
+    
     try {
       setIsProcessing(true);
       const result = await pythonApi.createVoronoi(voronoiPoints);
-
+      
       if (result.status === 'success') {
         // Add the Voronoi diagram as a new layer
         onAddLayer(result.voronoi, `Voronoi Diagram (${voronoiPoints.length} points)`);
@@ -140,10 +140,10 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
       alert('Please select a GeoJSON file to analyze');
       return;
     }
-
+    
     try {
       setIsProcessing(true);
-
+      
       // Read the file
       const reader = new FileReader();
       reader.onload = async (e) => {
@@ -151,7 +151,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
           if (e.target && e.target.result) {
             const geojson = JSON.parse(e.target.result as string);
             const result = await pythonApi.analyzeGeoJSON(geojson);
-
+            
             if (result.status === 'success') {
               setAnalysisResults(result.statistics);
               alert('Analysis complete');
@@ -166,7 +166,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
           setIsProcessing(false);
         }
       };
-
+      
       reader.readAsText(analyzeFile);
     } catch (error) {
       console.error('Error analyzing GeoJSON:', error);
@@ -196,14 +196,14 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
           <X className="w-4 h-4 text-gray-500" />
         </button>
       </div>
-
+      
       {apiStatus === 'checking' && (
         <div className="p-4 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Checking Python API status...</p>
         </div>
       )}
-
+      
       {apiStatus === 'offline' && (
         <div className="p-4">
           <div className="bg-red-50 border border-red-200 rounded-md p-3 text-center">
@@ -228,14 +228,14 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
           </div>
         </div>
       )}
-
+      
       {apiStatus === 'online' && (
         <>
           <div className="flex border-b">
             <button
               className={`flex-1 py-2 px-3 text-sm font-medium ${
-                activeTab === 'buffer'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
+                activeTab === 'buffer' 
+                  ? 'text-purple-600 border-b-2 border-purple-600' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
               onClick={() => setActiveTab('buffer')}
@@ -244,8 +244,8 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
             </button>
             <button
               className={`flex-1 py-2 px-3 text-sm font-medium ${
-                activeTab === 'simplify'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
+                activeTab === 'simplify' 
+                  ? 'text-purple-600 border-b-2 border-purple-600' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
               onClick={() => setActiveTab('simplify')}
@@ -254,8 +254,8 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
             </button>
             <button
               className={`flex-1 py-2 px-3 text-sm font-medium ${
-                activeTab === 'voronoi'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
+                activeTab === 'voronoi' 
+                  ? 'text-purple-600 border-b-2 border-purple-600' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
               onClick={() => setActiveTab('voronoi')}
@@ -264,8 +264,8 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
             </button>
             <button
               className={`flex-1 py-2 px-3 text-sm font-medium ${
-                activeTab === 'analyze'
-                  ? 'text-purple-600 border-b-2 border-purple-600'
+                activeTab === 'analyze' 
+                  ? 'text-purple-600 border-b-2 border-purple-600' 
                   : 'text-gray-500 hover:text-gray-700'
               }`}
               onClick={() => setActiveTab('analyze')}
@@ -273,7 +273,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
               Analyze
             </button>
           </div>
-
+          
           <div className="p-4">
             {activeTab === 'buffer' && (
               <div className="space-y-4">
@@ -290,7 +290,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
                 </div>
-
+                
                 <div className="text-sm text-gray-600">
                   {activeGeometry ? (
                     <p>Selected geometry: {activeGeometry.type}</p>
@@ -298,7 +298,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                     <p className="italic">No geometry selected. Please select or draw a geometry first.</p>
                   )}
                 </div>
-
+                
                 <button
                   onClick={handleBufferGeometry}
                   disabled={!activeGeometry || isProcessing}
@@ -318,7 +318,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                 </button>
               </div>
             )}
-
+            
             {activeTab === 'simplify' && (
               <div className="space-y-4">
                 <div>
@@ -338,7 +338,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                     Higher values result in more simplification. Recommended range: 0.00001 - 0.001
                   </p>
                 </div>
-
+                
                 <div className="text-sm text-gray-600">
                   {activeGeometry ? (
                     <p>Selected geometry: {activeGeometry.type}</p>
@@ -346,7 +346,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                     <p className="italic">No geometry selected. Please select or draw a geometry first.</p>
                   )}
                 </div>
-
+                
                 <button
                   onClick={handleSimplifyGeometry}
                   disabled={!activeGeometry || isProcessing}
@@ -366,7 +366,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                 </button>
               </div>
             )}
-
+            
             {activeTab === 'voronoi' && (
               <div className="space-y-4">
                 <div>
@@ -383,7 +383,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                       </button>
                     )}
                   </div>
-
+                  
                   <div className="max-h-32 overflow-y-auto mb-2 border border-gray-200 rounded-md">
                     {voronoiPoints.length === 0 ? (
                       <div className="p-2 text-sm text-gray-500 italic">
@@ -411,7 +411,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                       </div>
                     )}
                   </div>
-
+                  
                   <div className="grid grid-cols-2 gap-2 mb-2">
                     <div>
                       <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -438,7 +438,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                       />
                     </div>
                   </div>
-
+                  
                   <button
                     onClick={handleAddVoronoiPoint}
                     disabled={!newPointLat || !newPointLng}
@@ -448,7 +448,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                     <span>Add Point</span>
                   </button>
                 </div>
-
+                
                 <button
                   onClick={handleCreateVoronoi}
                   disabled={voronoiPoints.length < 3 || isProcessing}
@@ -468,7 +468,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                 </button>
               </div>
             )}
-
+            
             {activeTab === 'analyze' && (
               <div className="space-y-4">
                 <div>
@@ -482,7 +482,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                     className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
                   />
                 </div>
-
+                
                 <button
                   onClick={handleAnalyzeGeoJSON}
                   disabled={!analyzeFile || isProcessing}
@@ -500,7 +500,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                     </>
                   )}
                 </button>
-
+                
                 {analysisResults && (
                   <div className="mt-4 border border-gray-200 rounded-md p-3 bg-gray-50">
                     <h4 className="font-medium text-gray-700 mb-2">Analysis Results</h4>
@@ -508,16 +508,16 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                       <div>
                         <span className="font-medium">Features:</span> {analysisResults.feature_count}
                       </div>
-
+                      
                       <div>
                         <span className="font-medium">Geometry Types:</span>
                         <ul className="list-disc list-inside ml-2">
                           {Object.entries(analysisResults.geometry_types).map(([type, count]) => (
-                            <li key={type}>{type}: {count}</li>
+                            <li key={type}>{type}: {count as React.ReactNode}</li>
                           ))}
                         </ul>
                       </div>
-
+                      
                       {analysisResults.total_area_m2 !== undefined && (
                         <div>
                           <span className="font-medium">Area:</span>
@@ -527,7 +527,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                           </ul>
                         </div>
                       )}
-
+                      
                       {analysisResults.total_length_m !== undefined && (
                         <div>
                           <span className="font-medium">Length:</span>
@@ -537,7 +537,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonTools
                           </ul>
                         </div>
                       )}
-
+                      
                       <div>
                         <span className="font-medium">Bounds:</span>
                         <div className="text-xs font-mono bg-gray-100 p-1 rounded mt-1">

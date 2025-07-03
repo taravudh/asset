@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Edit, Trash, Save, MapPin, Map, Camera, Image, ChevronLeft, ChevronRight, Download } from 'lucide-react';
+import { X, Edit, Trash, Save, MapPin, Map, ChevronLeft, ChevronRight, Download } from 'lucide-react';
 import { Asset } from '../../lib/types';
 
 interface AssetPanelProps {

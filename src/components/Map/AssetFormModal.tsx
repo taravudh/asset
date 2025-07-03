@@ -26,7 +26,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
   // CRITICAL: Generate asset ID at the very beginning to ensure consistency
   // Use existing asset ID or generate a new one
   const assetId = asset?.id || uuidv4();
-
+  
   const [name, setName] = useState(asset?.name || '');
   const [description, setDescription] = useState(asset?.description || '');
   const [properties, setProperties] = useState<Record<string, string>>(
@@ -41,7 +41,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
   const [showCamera, setShowCamera] = useState(false);
   const [location, setLocation] = useState<{lat: number, lng: number} | null>(null);
   const [isCameraAvailable, setIsCameraAvailable] = useState<boolean | null>(null);
-
+  
   // Initialize properties with custom fields from the active layer
   useEffect(() => {
     if (activeLayer?.customFields && activeLayer.customFields.length > 0 && !asset) {
@@ -58,7 +58,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
     if (geometry.type === 'Point') {
       const [lng, lat] = geometry.coordinates;
       setLocation({ lat, lng });
-
+      
       // Add location to properties
       setProperties(prev => ({
         ...prev,
@@ -83,20 +83,20 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
         setIsCameraAvailable(false);
       }
     };
-
+    
     checkCameraAvailability();
   }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
+    
     // Validate form
     const errors: Record<string, string> = {};
-
+    
     if (!name.trim()) {
       errors.name = 'Please enter a name for this asset';
     }
-
+    
     // Validate required custom fields
     if (activeLayer?.customFields) {
       activeLayer.customFields.forEach(field => {
@@ -105,12 +105,12 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
         }
       });
     }
-
+    
     if (Object.keys(errors).length > 0) {
       setValidationErrors(errors);
       return;
     }
-
+    
     // Prepare asset data
     const assetData: Partial<Asset> = {
       id: assetId, // Use the consistent asset ID
@@ -121,56 +121,56 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
       layerId,
       photos
     };
-
+    
     onSave(assetData);
   };
-
+  
   const addProperty = () => {
     if (!newPropertyKey.trim()) {
       setValidationErrors({...validationErrors, newProperty: 'Please enter a property name'});
       return;
     }
-
+    
     setProperties(prev => ({
       ...prev,
       [newPropertyKey.trim()]: newPropertyValue
     }));
-
+    
     setNewPropertyKey('');
     setNewPropertyValue('');
     setValidationErrors({...validationErrors, newProperty: ''});
   };
-
+  
   const removeProperty = (key: string) => {
     // Don't allow removing required custom fields
     const isRequiredField = activeLayer?.customFields?.some(
       field => field.name === key && field.required
     );
-
+    
     if (isRequiredField) {
       setValidationErrors({...validationErrors, [key]: 'This field is required and cannot be removed'});
       return;
     }
-
+    
     // Don't allow removing latitude/longitude if they exist
     if ((key === 'latitude' || key === 'longitude') && location) {
       setValidationErrors({...validationErrors, [key]: 'Location coordinates cannot be removed'});
       return;
     }
-
+    
     setProperties(prev => {
       const updated = { ...prev };
       delete updated[key];
       return updated;
     });
   };
-
+  
   const updateProperty = (key: string, value: string) => {
     setProperties(prev => ({
       ...prev,
       [key]: value
     }));
-
+    
     // Clear validation error if value is provided
     if (value.trim() !== '' && validationErrors[key]) {
       const updatedErrors = {...validationErrors};
@@ -197,20 +197,20 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
     if (e.target.files && e.target.files.length > 0) {
       const file = e.target.files[0];
       const reader = new FileReader();
-
+      
       reader.onload = (event) => {
         if (event.target && event.target.result) {
           const timestamp = new Date().toISOString();
           const photoIndex = photos.length + 1;
-
+          
           // Create location string for filename
-          const locationString = location
+          const locationString = location 
             ? `_${location.lat.toFixed(6)}_${location.lng.toFixed(6)}`
             : '';
-
+          
           // CRITICAL: Use the exact assetId for the filename, plus location
           const filename = `${assetId}${locationString}_photo_${photoIndex}_${timestamp.replace(/[:.]/g, '-')}.jpg`;
-
+          
           const newPhoto: AssetPhoto = {
             id: uuidv4(),
             assetId,
@@ -219,15 +219,15 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
             originalName: file.name,
             capturedAt: timestamp
           };
-
+          
           setPhotos([...photos, newPhoto]);
           setCameraError(null);
         }
       };
-
+      
       reader.readAsDataURL(file);
     }
-
+    
     // Reset the input so the same file can be selected again
     if (e.target.value) {
       e.target.value = '';
@@ -237,15 +237,15 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
   const handleCameraCapture = (imageData: string) => {
     const timestamp = new Date().toISOString();
     const photoIndex = photos.length + 1;
-
+    
     // Create location string for filename
-    const locationString = location
+    const locationString = location 
       ? `_${location.lat.toFixed(6)}_${location.lng.toFixed(6)}`
       : '';
-
+    
     // CRITICAL: Always use the exact assetId for the filename, plus location
     const photoFilename = `${assetId}${locationString}_photo_${photoIndex}_${timestamp.replace(/[:.]/g, '-')}.jpg`;
-
+    
     const newPhoto: AssetPhoto = {
       id: uuidv4(),
       assetId,
@@ -253,7 +253,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
       filename: photoFilename,
       capturedAt: timestamp
     };
-
+    
     setPhotos([...photos, newPhoto]);
     setShowCamera(false);
     setCameraError(null);
@@ -262,20 +262,20 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
   const removePhoto = (photoId: string) => {
     setPhotos(photos.filter(photo => photo.id !== photoId));
   };
-
+  
   const downloadPhoto = (photo: AssetPhoto) => {
     // Create a download link
     const link = document.createElement('a');
     link.href = photo.data;
-
+    
     // CRITICAL: Use the exact filename that includes assetId and location
     link.download = photo.filename;
-
+    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
-
+  
   // Determine asset type based on geometry
   let assetType = '';
   switch (geometry.type) {
@@ -294,14 +294,14 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
 
   // Group properties into custom fields and additional properties
   const customFieldKeys = activeLayer?.customFields?.map(field => field.name) || [];
-  const additionalProperties = Object.entries(properties).filter(([key]) =>
+  const additionalProperties = Object.entries(properties).filter(([key]) => 
     !customFieldKeys.includes(key) && key !== 'latitude' && key !== 'longitude'
   );
 
   if (showCamera) {
-    return <CameraCapture
-      onCapture={handleCameraCapture}
-      onClose={() => setShowCamera(false)}
+    return <CameraCapture 
+      onCapture={handleCameraCapture} 
+      onClose={() => setShowCamera(false)} 
       assetId={assetId}
     />;
   }
@@ -320,7 +320,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
             <X className="w-5 h-5" />
           </button>
         </div>
-
+        
         <form onSubmit={handleSubmit} className="p-4 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -343,7 +343,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               <p className="mt-1 text-sm text-red-600">{validationErrors.name}</p>
             )}
           </div>
-
+          
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Description
@@ -356,7 +356,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               rows={3}
             />
           </div>
-
+          
           {/* Asset ID Display */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -374,7 +374,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               This ID will be used in photo filenames for easy matching
             </p>
           </div>
-
+          
           {/* Location Display */}
           {location && (
             <div>
@@ -384,7 +384,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               <div className="flex items-center bg-gray-100 p-2 rounded-md">
                 <MapPin className="w-4 h-4 text-blue-600 mr-2" />
                 <div className="text-sm">
-                  <span className="font-medium">Lat:</span> {location.lat.toFixed(6)},
+                  <span className="font-medium">Lat:</span> {location.lat.toFixed(6)}, 
                   <span className="font-medium ml-2">Lng:</span> {location.lng.toFixed(6)}
                 </div>
               </div>
@@ -393,7 +393,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               </p>
             </div>
           )}
-
+          
           {/* Photos Section */}
           <div>
             <div className="flex justify-between items-center mb-2">
@@ -428,7 +428,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                 className="hidden"
               />
             </div>
-
+            
             {cameraError && (
               <div className="mb-2 p-2 bg-red-50 border border-red-200 rounded-md">
                 <div className="flex items-start">
@@ -437,15 +437,15 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                 </div>
               </div>
             )}
-
+            
             {photos.length > 0 ? (
               <div className="grid grid-cols-3 gap-2 mb-2">
                 {photos.map((photo) => (
                   <div key={photo.id} className="relative group">
                     <div className="aspect-square overflow-hidden rounded-md border border-gray-200">
-                      <img
-                        src={photo.data}
-                        alt="Asset"
+                      <img 
+                        src={photo.data} 
+                        alt="Asset" 
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -472,7 +472,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                     </div>
                   </div>
                 ))}
-                <div
+                <div 
                   className="aspect-square border-2 border-dashed border-gray-300 rounded-md flex items-center justify-center cursor-pointer hover:bg-gray-50"
                   onClick={handleCapturePhoto}
                 >
@@ -480,7 +480,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                 </div>
               </div>
             ) : (
-              <div
+              <div 
                 className="border-2 border-dashed border-gray-300 rounded-md p-4 text-center cursor-pointer hover:bg-gray-50"
                 onClick={handleCapturePhoto}
               >
@@ -492,14 +492,14 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               </div>
             )}
           </div>
-
+          
           {/* Custom Fields Section */}
           {activeLayer?.customFields && activeLayer.customFields.length > 0 && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Layer Fields
               </label>
-
+              
               <div className="space-y-3 mb-4">
                 {activeLayer.customFields.map((field) => (
                   <div key={field.name}>
@@ -507,7 +507,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                       {field.name}
                       {field.required && <span className="text-red-500 ml-1">*</span>}
                     </label>
-
+                    
                     {field.type === 'text' && (
                       <input
                         type="text"
@@ -517,7 +517,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                         placeholder={`Enter ${field.name.toLowerCase()}`}
                       />
                     )}
-
+                    
                     {field.type === 'number' && (
                       <input
                         type="number"
@@ -527,7 +527,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                         placeholder={`Enter ${field.name.toLowerCase()}`}
                       />
                     )}
-
+                    
                     {field.type === 'date' && (
                       <input
                         type="date"
@@ -536,7 +536,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                         className={`w-full px-3 py-2 border ${validationErrors[field.name] ? 'border-red-500' : 'border-gray-300'} rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black`}
                       />
                     )}
-
+                    
                     {field.type === 'boolean' && (
                       <select
                         value={properties[field.name] || ''}
@@ -548,7 +548,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                         <option value="false">No</option>
                       </select>
                     )}
-
+                    
                     {validationErrors[field.name] && (
                       <p className="mt-1 text-sm text-red-600">{validationErrors[field.name]}</p>
                     )}
@@ -557,14 +557,14 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               </div>
             </div>
           )}
-
+          
           {/* Location Properties */}
           {location && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Location Properties
               </label>
-
+              
               <div className="space-y-2 mb-4">
                 <div className="flex items-center space-x-2">
                   <div className="flex-1 px-3 py-2 bg-gray-100 rounded-md">
@@ -579,13 +579,13 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               </div>
             </div>
           )}
-
+          
           {/* Additional Properties Section */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Additional Properties
             </label>
-
+            
             <div className="mb-2 space-y-2">
               {additionalProperties.map(([key, value]) => (
                 <div key={key} className="flex items-center space-x-2">
@@ -602,7 +602,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
                 </div>
               ))}
             </div>
-
+            
             <div className="flex space-x-2">
               <input
                 type="text"
@@ -636,7 +636,7 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
               <p className="mt-1 text-sm text-red-600">{validationErrors.newProperty}</p>
             )}
           </div>
-
+          
           <div className="pt-4 border-t flex justify-end space-x-3">
             <button
               type="button"

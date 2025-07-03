@@ -1,4 +1,3 @@
-import React from 'react';
 import { X, Eye, EyeOff, Trash2, Layers } from 'lucide-react';
 import { Layer } from '../../lib/types';
 
