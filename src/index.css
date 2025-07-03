@@ -1,0 +1,295 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  
+  color-scheme: light dark;
+  color: rgba(0, 0, 0, 0.87); /* Changed from white to black */
+  background-color: #f3f4f6;
+  
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: #000000; /* Added explicit black color */
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c0c0c0;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a0a0a0;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mobile optimizations */
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important; /* Prevents zoom on focus in iOS */
+  }
+  
+  button, a {
+    cursor: default; /* Better touch experience */
+  }
+}
+
+/* Text color overrides */
+.text-color-default {
+  color: #000000;
+}
+
+/* Ensure all text elements have black text by default */
+p, h1, h2, h3, h4, h5, h6, span, div, button, input, textarea, select, label {
+  color: inherit;
+}
+
+/* Input text color for dark backgrounds */
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+input[type="number"], 
+input[type="date"],
+input[type="search"],
+textarea,
+select {
+  color: black;
+}
+
+/* White text for inputs on dark backgrounds */
+.bg-black input[type="text"],
+.bg-black input[type="email"],
+.bg-black input[type="password"],
+.bg-black input[type="number"],
+.bg-black input[type="date"],
+.bg-black input[type="search"],
+.bg-black textarea,
+.bg-black select,
+.bg-gray-900 input[type="text"],
+.bg-gray-900 input[type="email"],
+.bg-gray-900 input[type="password"],
+.bg-gray-900 input[type="number"],
+.bg-gray-900 input[type="date"],
+.bg-gray-900 input[type="search"],
+.bg-gray-900 textarea,
+.bg-gray-900 select,
+.bg-blue-900 input[type="text"],
+.bg-blue-900 input[type="email"],
+.bg-blue-900 input[type="password"],
+.bg-blue-900 input[type="number"],
+.bg-blue-900 input[type="date"],
+.bg-blue-900 input[type="search"],
+.bg-blue-900 textarea,
+.bg-blue-900 select,
+[class*="bg-dark"] input[type="text"],
+[class*="bg-dark"] input[type="email"],
+[class*="bg-dark"] input[type="password"],
+[class*="bg-dark"] input[type="number"],
+[class*="bg-dark"] input[type="date"],
+[class*="bg-dark"] input[type="search"],
+[class*="bg-dark"] textarea,
+[class*="bg-dark"] select {
+  color: white;
+}
+
+/* Camera capture styles */
+.camera-container {
+  position: fixed;
+  inset: 0;
+  background-color: black;
+  z-index: 3000;
+  display: flex;
+  flex-direction: column;
+}
+
+.camera-view {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.camera-controls {
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: black;
+}
+
+.camera-button {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 9999px;
+  border: 4px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.camera-button:active {
+  transform: scale(0.95);
+}
+
+.camera-button-inner {
+  width: 3rem;
+  height: 3rem;
+  background-color: white;
+  border-radius: 9999px;
+}
+
+.camera-info {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+}
+
+/* Fix for dark mode inputs */
+.dark-mode-input {
+  color: white !important;
+}
+
+/* Fix for input text in dark containers */
+.bg-gray-800 input,
+.bg-gray-900 input,
+.bg-black input,
+.bg-blue-900 input,
+.bg-blue-800 input,
+[class*="dark"] input {
+  color: white !important;
+}
+
+/* Tap to capture instruction */
+.tap-to-capture {
+  position: absolute;
+  bottom: 6rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+/* Camera shutter animation */
+.camera-shutter {
+  position: absolute;
+  inset: 0;
+  background-color: white;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.1s;
+}
+
+.camera-shutter.active {
+  opacity: 1;
+  animation: flash 0.2s;
+}
+
+@keyframes flash {
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Custom popup styles for GeoJSON features */
+.custom-popup .leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+}
+
+.custom-popup .leaflet-popup-content {
+  margin: 0;
+  padding: 12px;
+  width: auto !important;
+  min-width: 200px;
+  max-width: 300px;
+}
+
+.custom-popup h3 {
+  font-size: 16px;
+  margin: 0 0 8px 0;
+  color: #2563eb;
+}
+
+.custom-popup p {
+  margin: 0 0 8px 0;
+  font-size: 14px;
+}
+
+.custom-popup .property-row {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.custom-popup .property-key {
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.custom-popup .property-value {
+  color: #2563eb;
+  cursor: pointer;
+}
+
+.custom-popup .property-value:hover {
+  text-decoration: underline;
+}
+
+.custom-popup .copied {
+  color: #10b981;
+}
+
+/* Tooltip for copied text */
+.copy-tooltip {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  pointer-events: none;
+  z-index: 1000;
+}

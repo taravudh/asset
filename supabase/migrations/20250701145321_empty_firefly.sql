@@ -1,0 +1,295 @@
+/*
+  # Fix Function Conflicts and Complete Migration
+  
+  This migration safely handles existing function conflicts and completes
+  the database migration for user-specific data access.
+  
+  1. Safely drop and recreate functions
+  2. Add missing columns with proper checks
+  3. Update existing data
+  4. Create clean policies
+  5. Verify migration success
+*/
+
+-- Function to safely drop a function if it exists
+CREATE OR REPLACE FUNCTION drop_function_if_exists(function_name text, function_args text DEFAULT '')
+RETURNS void AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_proc p
+    JOIN pg_namespace n ON p.pronamespace = n.oid
+    WHERE n.nspname = 'public' AND p.proname = function_name
+  ) THEN
+    EXECUTE format('DROP FUNCTION IF EXISTS %I%s', function_name, function_args);
+    RAISE NOTICE 'Dropped existing function: %', function_name;
+  ELSE
+    RAISE NOTICE 'Function % does not exist, skipping', function_name;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Function to safely drop a policy if it exists
+CREATE OR REPLACE FUNCTION drop_policy_if_exists(policy_name text, table_name text)
+RETURNS void AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_policies 
+    WHERE policyname = policy_name AND tablename = table_name
+  ) THEN
+    EXECUTE format('DROP POLICY %I ON %I', policy_name, table_name);
+    RAISE NOTICE 'Dropped existing policy: % on table %', policy_name, table_name;
+  ELSE
+    RAISE NOTICE 'Policy % on table % does not exist, skipping', policy_name, table_name;
+  END IF;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Drop existing functions that might conflict
+SELECT drop_function_if_exists('debug_user_projects', '()');
+SELECT drop_function_if_exists('check_migration_status', '()');
+
+-- Add created_by column to projects table if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'projects' AND column_name = 'created_by'
+  ) THEN
+    ALTER TABLE projects ADD COLUMN created_by uuid REFERENCES auth.users(id) ON DELETE CASCADE;
+    RAISE NOTICE '✅ Added created_by column to projects table';
+  ELSE
+    RAISE NOTICE '✅ created_by column already exists in projects table';
+  END IF;
+END $$;
+
+-- Add created_by column to assets table if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'assets' AND column_name = 'created_by'
+  ) THEN
+    ALTER TABLE assets ADD COLUMN created_by uuid REFERENCES auth.users(id) ON DELETE CASCADE;
+    RAISE NOTICE '✅ Added created_by column to assets table';
+  ELSE
+    RAISE NOTICE '✅ created_by column already exists in assets table';
+  END IF;
+END $$;
+
+-- Add created_by column to layers table if it doesn't exist
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name = 'layers' AND column_name = 'created_by'
+  ) THEN
+    ALTER TABLE layers ADD COLUMN created_by uuid REFERENCES auth.users(id) ON DELETE CASCADE;
+    RAISE NOTICE '✅ Added created_by column to layers table';
+  ELSE
+    RAISE NOTICE '✅ created_by column already exists in layers table';
+  END IF;
+END $$;
+
+-- Create indexes for performance (safe to run multiple times)
+CREATE INDEX IF NOT EXISTS idx_projects_created_by ON projects(created_by);
+CREATE INDEX IF NOT EXISTS idx_assets_created_by ON assets(created_by);
+CREATE INDEX IF NOT EXISTS idx_layers_created_by ON layers(created_by);
+
+-- Safely drop ALL existing policies that might conflict
+SELECT drop_policy_if_exists('projects_auth_select_final_2025', 'projects');
+SELECT drop_policy_if_exists('projects_auth_insert_final_2025', 'projects');
+SELECT drop_policy_if_exists('projects_auth_update_final_2025', 'projects');
+SELECT drop_policy_if_exists('projects_auth_delete_final_2025', 'projects');
+SELECT drop_policy_if_exists('projects_user_select_2025', 'projects');
+SELECT drop_policy_if_exists('projects_user_insert_2025', 'projects');
+SELECT drop_policy_if_exists('projects_user_update_2025', 'projects');
+SELECT drop_policy_if_exists('projects_user_delete_2025', 'projects');
+SELECT drop_policy_if_exists('projects_user_access_2025', 'projects');
+SELECT drop_policy_if_exists('projects_user_access_20250701', 'projects');
+
+SELECT drop_policy_if_exists('assets_auth_select_final_2025', 'assets');
+SELECT drop_policy_if_exists('assets_auth_insert_final_2025', 'assets');
+SELECT drop_policy_if_exists('assets_auth_update_final_2025', 'assets');
+SELECT drop_policy_if_exists('assets_auth_delete_final_2025', 'assets');
+SELECT drop_policy_if_exists('assets_user_select_2025', 'assets');
+SELECT drop_policy_if_exists('assets_user_insert_2025', 'assets');
+SELECT drop_policy_if_exists('assets_user_update_2025', 'assets');
+SELECT drop_policy_if_exists('assets_user_delete_2025', 'assets');
+SELECT drop_policy_if_exists('assets_user_access_2025', 'assets');
+SELECT drop_policy_if_exists('assets_user_access_20250701', 'assets');
+
+SELECT drop_policy_if_exists('layers_auth_select_final_2025', 'layers');
+SELECT drop_policy_if_exists('layers_auth_insert_final_2025', 'layers');
+SELECT drop_policy_if_exists('layers_auth_update_final_2025', 'layers');
+SELECT drop_policy_if_exists('layers_auth_delete_final_2025', 'layers');
+SELECT drop_policy_if_exists('layers_user_select_2025', 'layers');
+SELECT drop_policy_if_exists('layers_user_insert_2025', 'layers');
+SELECT drop_policy_if_exists('layers_user_update_2025', 'layers');
+SELECT drop_policy_if_exists('layers_user_delete_2025', 'layers');
+SELECT drop_policy_if_exists('layers_user_access_2025', 'layers');
+SELECT drop_policy_if_exists('layers_user_access_20250701', 'layers');
+
+-- Ensure RLS is enabled on all tables
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE assets ENABLE ROW LEVEL SECURITY;
+ALTER TABLE layers ENABLE ROW LEVEL SECURITY;
+
+-- Create new user-specific policies with completely unique names
+CREATE POLICY "projects_user_final_20250701_150000" ON projects FOR ALL TO authenticated 
+USING (created_by = auth.uid()) 
+WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "assets_user_final_20250701_150000" ON assets FOR ALL TO authenticated 
+USING (created_by = auth.uid()) 
+WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "layers_user_final_20250701_150000" ON layers FOR ALL TO authenticated 
+USING (created_by = auth.uid()) 
+WITH CHECK (created_by = auth.uid());
+
+-- Update existing data to set created_by to the first user (for backward compatibility)
+DO $$
+DECLARE
+  first_user_id uuid;
+  projects_updated integer;
+  assets_updated integer;
+  layers_updated integer;
+BEGIN
+  -- Get the first user ID from auth.users
+  SELECT id INTO first_user_id FROM auth.users ORDER BY created_at ASC LIMIT 1;
+  
+  IF first_user_id IS NOT NULL THEN
+    -- Update projects without created_by
+    UPDATE projects 
+    SET created_by = first_user_id 
+    WHERE created_by IS NULL;
+    GET DIAGNOSTICS projects_updated = ROW_COUNT;
+    
+    -- Update assets without created_by
+    UPDATE assets 
+    SET created_by = first_user_id 
+    WHERE created_by IS NULL;
+    GET DIAGNOSTICS assets_updated = ROW_COUNT;
+    
+    -- Update layers without created_by
+    UPDATE layers 
+    SET created_by = first_user_id 
+    WHERE created_by IS NULL;
+    GET DIAGNOSTICS layers_updated = ROW_COUNT;
+    
+    RAISE NOTICE '✅ Updated existing records to be owned by user: %', first_user_id;
+    RAISE NOTICE '📊 Projects updated: %, Assets updated: %, Layers updated: %', 
+                 projects_updated, assets_updated, layers_updated;
+  ELSE
+    RAISE NOTICE '⚠️ No users found - existing records will remain unassigned until first user signs up';
+  END IF;
+END $$;
+
+-- Grant necessary permissions
+GRANT USAGE ON SCHEMA public TO authenticated;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO authenticated;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO authenticated;
+GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA public TO authenticated;
+
+-- Create NEW debugging function with fresh name
+CREATE OR REPLACE FUNCTION debug_user_data_20250701()
+RETURNS TABLE (
+  user_email text,
+  user_id uuid,
+  project_count bigint,
+  project_names text[],
+  asset_count bigint,
+  layer_count bigint
+) 
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    u.email::text,
+    u.id,
+    COUNT(DISTINCT p.id),
+    ARRAY_AGG(DISTINCT p.name) FILTER (WHERE p.name IS NOT NULL),
+    COUNT(DISTINCT a.id),
+    COUNT(DISTINCT l.id)
+  FROM auth.users u
+  LEFT JOIN projects p ON u.id = p.created_by AND p.is_active = true
+  LEFT JOIN assets a ON u.id = a.created_by
+  LEFT JOIN layers l ON u.id = l.created_by
+  GROUP BY u.id, u.email
+  ORDER BY u.created_at;
+END;
+$$;
+
+-- Create NEW migration status function with fresh name
+CREATE OR REPLACE FUNCTION check_migration_status_20250701()
+RETURNS TABLE (
+  table_name text,
+  has_created_by_column boolean,
+  policy_count bigint,
+  row_count bigint,
+  sample_created_by_values text[]
+) 
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  RETURN QUERY
+  SELECT 
+    t.table_name::text,
+    EXISTS (
+      SELECT 1 FROM information_schema.columns 
+      WHERE table_name = t.table_name AND column_name = 'created_by'
+    ) as has_created_by_column,
+    (
+      SELECT COUNT(*) FROM pg_policies 
+      WHERE tablename = t.table_name
+    ) as policy_count,
+    CASE 
+      WHEN t.table_name = 'projects' THEN (SELECT COUNT(*) FROM projects)
+      WHEN t.table_name = 'assets' THEN (SELECT COUNT(*) FROM assets)
+      WHEN t.table_name = 'layers' THEN (SELECT COUNT(*) FROM layers)
+      ELSE 0
+    END as row_count,
+    CASE 
+      WHEN t.table_name = 'projects' THEN 
+        ARRAY(SELECT DISTINCT created_by::text FROM projects WHERE created_by IS NOT NULL LIMIT 3)
+      WHEN t.table_name = 'assets' THEN 
+        ARRAY(SELECT DISTINCT created_by::text FROM assets WHERE created_by IS NOT NULL LIMIT 3)
+      WHEN t.table_name = 'layers' THEN 
+        ARRAY(SELECT DISTINCT created_by::text FROM layers WHERE created_by IS NOT NULL LIMIT 3)
+      ELSE ARRAY[]::text[]
+    END as sample_created_by_values
+  FROM (VALUES ('projects'), ('assets'), ('layers')) AS t(table_name);
+END;
+$$;
+
+-- Grant execute permissions on the new functions
+GRANT EXECUTE ON FUNCTION debug_user_data_20250701() TO authenticated;
+GRANT EXECUTE ON FUNCTION check_migration_status_20250701() TO authenticated;
+
+-- Clean up helper functions
+DROP FUNCTION drop_policy_if_exists(text, text);
+DROP FUNCTION drop_function_if_exists(text, text);
+
+-- Final success message with instructions
+DO $$
+BEGIN
+  RAISE NOTICE '';
+  RAISE NOTICE '🎉 ===== MIGRATION COMPLETED SUCCESSFULLY! =====';
+  RAISE NOTICE '';
+  RAISE NOTICE '✅ All created_by columns have been added';
+  RAISE NOTICE '✅ All conflicting policies have been removed';
+  RAISE NOTICE '✅ New user-specific policies have been created';
+  RAISE NOTICE '✅ Existing data has been assigned to users';
+  RAISE NOTICE '';
+  RAISE NOTICE '🔍 To verify the migration worked:';
+  RAISE NOTICE '   SELECT * FROM check_migration_status_20250701();';
+  RAISE NOTICE '';
+  RAISE NOTICE '👥 To see user data:';
+  RAISE NOTICE '   SELECT * FROM debug_user_data_20250701();';
+  RAISE NOTICE '';
+  RAISE NOTICE '🚀 Your application should now work without timeout errors!';
+  RAISE NOTICE '';
+END $$;

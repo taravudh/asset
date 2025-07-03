@@ -1,0 +1,32 @@
+PERMANENT DATABASE CONNECTION FIX INSTRUCTIONS
+
+You're experiencing a database connection error when trying to delete projects or perform other operations. This is happening because of policy conflicts and missing columns in the database.
+
+To permanently fix this issue, follow these steps:
+
+1. Go to your Supabase Dashboard (https://supabase.com/dashboard)
+2. Select your project
+3. Navigate to SQL Editor in the left sidebar
+4. Copy and paste the SQL from the FINAL_SQL_FIX.sql file
+5. Click RUN
+
+This SQL script will:
+- Remove all conflicting policies
+- Add any missing columns
+- Create new, permissive policies that will allow the app to work
+- Create a robust project deletion function
+- Update existing data to ensure it's properly associated with users
+
+After running the script:
+1. Refresh your application
+2. Sign in
+3. Try to delete a project
+4. The connection timeout error should be resolved
+
+IMPORTANT: This fix uses temporarily permissive policies to ensure the app works. Once everything is working correctly, you may want to apply more restrictive policies for better security.
+
+If you still experience issues:
+1. Check the browser console for specific error messages
+2. Try signing out and back in to refresh your session
+3. Clear your browser cache and local storage
+4. Contact support with any specific error messages you see
