@@ -6,7 +6,6 @@ interface PythonToolsProps {
   onClose: () => void;
   onAddLayer: (geojson: any, name: string) => void;
   activeGeometry?: any;
-  projectId: string;
 }
 
 export function PythonTools({ onClose, onAddLayer, activeGeometry }: PythonToolsProps) {

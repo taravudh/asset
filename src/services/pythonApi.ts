@@ -11,7 +11,7 @@ export const pythonApi = {
       const response = await axios.get(`${API_URL}/health`);
       return response.data;
     } catch (error) {
-      console.error('Error checking Python API health:', error);
+      console.error('Python API is not available:', error);
       throw error;
     }
   },

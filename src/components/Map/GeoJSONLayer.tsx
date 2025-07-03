@@ -32,7 +32,7 @@ const GeoJSONLayer: React.FC<GeoJSONLayerProps> = ({
   };
   
   // Point to layer function for GeoJSON points
-  const pointToLayer = (feature: any, latlng: L.LatLng) => {
+  const pointToLayer = (_feature: any, latlng: L.LatLng) => {
     return L.circleMarker(latlng, {
       radius: 8,
       fillColor: color,

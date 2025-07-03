@@ -8,9 +8,9 @@ import { Layers, Upload, Download, Trash2, X, Map as MapIcon, Circle, Spline as 
 import GeoJSONLayer from './GeoJSONLayer';
 import GeoJSONUploader from './GeoJSONUploader';
 import ToolbarButton from '../UI/ToolbarButton';
-import { Layer, Asset } from '../../lib/types';
+import { Layer, Asset } from '../lib/types';
 import { AssetFormModal } from './AssetFormModal';
-import { createAsset, createLayer, deleteLayer, updateLayer, getLayersByProject } from '../../lib/database';
+import { createAsset, createLayer, deleteLayer, updateLayer, getLayersByProject } from '../lib/database';
 import { BasemapSelector } from './BasemapSelector';
 import { MeasurementTool } from './MeasurementTool';
 import { AttributeViewer } from './AttributeViewer';
