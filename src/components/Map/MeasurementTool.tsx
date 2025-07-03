@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { X, Ruler } from 'lucide-react';
 
 export const MeasurementTool: React.FC = () => {
-  const [measurements, setMeasurements] = useState<string[]>([]);
+  const [measurements] = useState<string[]>([]);
   
   // This is a placeholder component
   // In a real implementation, this would interact with the map

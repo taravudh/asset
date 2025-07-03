@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, ZoomControl, FeatureGroup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, ZoomControl, FeatureGroup } from 'react-leaflet';
 import L from 'leaflet';
 import { EditControl } from 'react-leaflet-draw';
 import 'leaflet/dist/leaflet.css';
@@ -480,7 +480,7 @@ const MapView: React.FC<MapViewProps> = ({ projectId }) => {
         <ZoomControl position="bottomright" />
         
         {/* Drawing tools */}
-        <FeatureGroup ref={(ref) => { featureGroupRef.current = ref; }}>
+        <FeatureGroup ref={(ref) => { featureGroupRef.current = ref as L.FeatureGroup | null; }}>
           <EditControl
             position="topright"
             onCreated={handleCreated}

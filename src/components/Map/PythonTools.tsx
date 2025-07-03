@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { X, Hexagon, Scissors, Layers, Activity, FileUp, Zap } from 'lucide-react';
+import { X, Hexagon, Scissors, Activity, Zap, Plus } from 'lucide-react';
 import { pythonApi } from '../../services/pythonApi';
-import toast from 'react-hot-toast';
 
 interface PythonToolsProps {
   onClose: () => void;
   onAddLayer: (geojson: any, name: string) => void;
-  activeGeometry?: GeoJSON.Geometry | null;
+  activeGeometry?: any;
   projectId: string;
 }
 
@@ -47,7 +46,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
 
   const handleBufferGeometry = async () => {
     if (!activeGeometry) {
-      toast.error('No geometry selected. Please select or draw a geometry first.');
+      alert('No geometry selected. Please select or draw a geometry first.');
       return;
     }
     
@@ -58,13 +57,13 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
       if (result.status === 'success') {
         // Add the buffer as a new layer
         onAddLayer(result.buffer, `Buffer (${bufferDistance}m)`);
-        toast.success('Buffer created successfully');
+        alert('Buffer created successfully');
       } else {
-        toast.error('Failed to create buffer');
+        alert('Failed to create buffer');
       }
     } catch (error) {
       console.error('Error creating buffer:', error);
-      toast.error('Error creating buffer');
+      alert('Error creating buffer');
     } finally {
       setIsProcessing(false);
     }
@@ -72,7 +71,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
 
   const handleSimplifyGeometry = async () => {
     if (!activeGeometry) {
-      toast.error('No geometry selected. Please select or draw a geometry first.');
+      alert('No geometry selected. Please select or draw a geometry first.');
       return;
     }
     
@@ -83,13 +82,13 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
       if (result.status === 'success') {
         // Add the simplified geometry as a new layer
         onAddLayer(result.simplified, `Simplified (${simplifyTolerance})`);
-        toast.success('Geometry simplified successfully');
+        alert('Geometry simplified successfully');
       } else {
-        toast.error('Failed to simplify geometry');
+        alert('Failed to simplify geometry');
       }
     } catch (error) {
       console.error('Error simplifying geometry:', error);
-      toast.error('Error simplifying geometry');
+      alert('Error simplifying geometry');
     } finally {
       setIsProcessing(false);
     }
@@ -102,7 +101,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
     const lng = parseFloat(newPointLng);
     
     if (isNaN(lat) || isNaN(lng)) {
-      toast.error('Invalid coordinates');
+      alert('Invalid coordinates');
       return;
     }
     
@@ -113,7 +112,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
 
   const handleCreateVoronoi = async () => {
     if (voronoiPoints.length < 3) {
-      toast.error('At least 3 points are required for Voronoi diagram');
+      alert('At least 3 points are required for Voronoi diagram');
       return;
     }
     
@@ -124,13 +123,13 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
       if (result.status === 'success') {
         // Add the Voronoi diagram as a new layer
         onAddLayer(result.voronoi, `Voronoi Diagram (${voronoiPoints.length} points)`);
-        toast.success('Voronoi diagram created successfully');
+        alert('Voronoi diagram created successfully');
       } else {
-        toast.error('Failed to create Voronoi diagram');
+        alert('Failed to create Voronoi diagram');
       }
     } catch (error) {
       console.error('Error creating Voronoi diagram:', error);
-      toast.error('Error creating Voronoi diagram');
+      alert('Error creating Voronoi diagram');
     } finally {
       setIsProcessing(false);
     }
@@ -138,7 +137,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
 
   const handleAnalyzeGeoJSON = async () => {
     if (!analyzeFile) {
-      toast.error('Please select a GeoJSON file to analyze');
+      alert('Please select a GeoJSON file to analyze');
       return;
     }
     
@@ -154,13 +153,13 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
           
           if (result.status === 'success') {
             setAnalysisResults(result.statistics);
-            toast.success('Analysis complete');
+            alert('Analysis complete');
           } else {
-            toast.error('Failed to analyze GeoJSON');
+            alert('Failed to analyze GeoJSON');
           }
         } catch (error) {
           console.error('Error parsing or analyzing GeoJSON:', error);
-          toast.error('Error parsing or analyzing GeoJSON');
+          alert('Error parsing or analyzing GeoJSON');
         } finally {
           setIsProcessing(false);
         }
@@ -169,7 +168,7 @@ export function PythonTools({ onClose, onAddLayer, activeGeometry, projectId }: 
       reader.readAsText(analyzeFile);
     } catch (error) {
       console.error('Error analyzing GeoJSON:', error);
-      toast.error('Error analyzing GeoJSON');
+      alert('Error analyzing GeoJSON');
       setIsProcessing(false);
     }
   };

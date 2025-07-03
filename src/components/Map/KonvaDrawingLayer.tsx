@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Stage, Layer, Line, Circle } from 'react-konva';
 import Konva from 'konva';
 
@@ -17,7 +17,7 @@ const KonvaDrawingLayer: React.FC<KonvaDrawingLayerProps> = ({
 }) => {
   const [points, setPoints] = useState<number[]>([]);
   const [isDrawing, setIsDrawing] = useState(false);
-  const stageRef = useRef<Konva.Stage>(null);
+  const stageRef = React.useRef<Konva.Stage | null>(null);
   
   // Reset drawing when component becomes inactive
   useEffect(() => {

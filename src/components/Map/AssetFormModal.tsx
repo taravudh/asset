@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, AlertCircle, Camera, Image, Trash, Plus, Download, MapPin } from 'lucide-react';
-import { Asset, Layer, CustomField, AssetPhoto } from '../../lib/types';
+import { Asset, Layer, AssetPhoto } from '../../lib/types';
 import { v4 as uuidv4 } from 'uuid';
 import CameraCapture from './CameraCapture';
 
@@ -294,9 +294,6 @@ export const AssetFormModal: React.FC<AssetFormModalProps> = ({
 
   // Group properties into custom fields and additional properties
   const customFieldKeys = activeLayer?.customFields?.map(field => field.name) || [];
-  const customFieldProperties = Object.entries(properties).filter(([key]) => 
-    customFieldKeys.includes(key)
-  );
   const additionalProperties = Object.entries(properties).filter(([key]) => 
     !customFieldKeys.includes(key) && key !== 'latitude' && key !== 'longitude'
   );

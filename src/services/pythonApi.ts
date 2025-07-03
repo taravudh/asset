@@ -21,7 +21,7 @@ export const pythonApi = {
    * @param geometry GeoJSON geometry
    * @param distance Buffer distance in meters
    */
-  bufferGeometry: async (geometry: GeoJSON.Geometry, distance: number) => {
+  bufferGeometry: async (geometry: any, distance: number) => {
     try {
       const response = await axios.post(`${API_URL}/buffer`, {
         geometry,
@@ -39,7 +39,7 @@ export const pythonApi = {
    * @param geometry GeoJSON geometry
    * @param tolerance Simplification tolerance
    */
-  simplifyGeometry: async (geometry: GeoJSON.Geometry, tolerance: number = 0.0001) => {
+  simplifyGeometry: async (geometry: any, tolerance: number = 0.0001) => {
     try {
       const response = await axios.post(`${API_URL}/simplify`, {
         geometry,
@@ -57,7 +57,7 @@ export const pythonApi = {
    * @param geometry1 First GeoJSON geometry
    * @param geometry2 Second GeoJSON geometry
    */
-  findIntersection: async (geometry1: GeoJSON.Geometry, geometry2: GeoJSON.Geometry) => {
+  findIntersection: async (geometry1: any, geometry2: any) => {
     try {
       const response = await axios.post(`${API_URL}/intersection`, {
         geometry1,
@@ -74,7 +74,7 @@ export const pythonApi = {
    * Analyze a GeoJSON file and return statistics
    * @param geojson GeoJSON FeatureCollection
    */
-  analyzeGeoJSON: async (geojson: GeoJSON.FeatureCollection) => {
+  analyzeGeoJSON: async (geojson: any) => {
     try {
       const response = await axios.post(`${API_URL}/analyze`, {
         geojson

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { GeoJSON, useMap } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -21,8 +21,6 @@ const GeoJSONLayer: React.FC<GeoJSONLayerProps> = ({
   fillOpacity = 0.2,
   onFeatureClick
 }) => {
-  const map = useMap();
-  
   // Style function for GeoJSON features
   const style = () => {
     return {
@@ -131,7 +129,7 @@ const GeoJSONLayer: React.FC<GeoJSONLayerProps> = ({
     
     // Add click handler
     if (onFeatureClick) {
-      layer.on('click', (e) => {
+      layer.on('click', (e: any) => {
         L.DomEvent.stopPropagation(e);
         onFeatureClick(feature, e.latlng);
       });
@@ -147,7 +145,7 @@ const GeoJSONLayer: React.FC<GeoJSONLayerProps> = ({
     <GeoJSON
       key={`${layerId}-${JSON.stringify(data)}`}
       data={data}
-      style={style}
+      style={style as any}
       pointToLayer={pointToLayer}
       onEachFeature={onEachFeature}
     />

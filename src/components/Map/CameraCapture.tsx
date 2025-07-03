@@ -7,7 +7,7 @@ interface CameraCaptureProps {
   assetId?: string;
 }
 
-export const CameraCapture: React.FC<CameraCaptureProps> = ({
+const CameraCapture: React.FC<CameraCaptureProps> = ({
   onCapture,
   onClose,
   assetId = 'unknown'
