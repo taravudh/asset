@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { FolderOpen, Plus, Edit2, Trash2, X, Save, Folder, Search, Download, Upload, Map } from 'lucide-react'
+import { FolderOpen, Plus, Edit2, Trash2, Save, Folder, Search, Map } from 'lucide-react'
 import { Project } from '../lib/types'
 
 interface ProjectSelectionScreenProps {

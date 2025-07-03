@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Users, Shield, ArrowLeft, Plus, Edit2, Trash2, Search, 
-  UserPlus, User, Mail, Key, CheckCircle, AlertCircle, 
-  UserCheck, UserX, Eye, EyeOff, Save, X
+  UserPlus, User, Mail, Key, AlertCircle, 
+  Eye, EyeOff, Save, X
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { getAllUsers, createUser, updateUser, deleteUser } from '../lib/database';
